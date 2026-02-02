@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dearest Reader ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        /* --- RESET --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            background-color: #fdf5e6; 
+            font-family: 'Playfair Display', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative; /* Needed for absolute positioning of children */
+        }
+
+        /* --- BACKGROUND SCROLLING WALL --- */
+        .background-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column; 
+            z-index: 0; /* Layer 0: The very back */
+            opacity: 0.6; 
+        }
+
+        .scroll-row {
+            display: flex;
+            width: max-content; 
+            height: 50vh; 
+        }
+
+        /* Top row scrolls Left */
+        .row-top {
+            animation: scrollLeft 60s linear infinite; /* Slowed down slightly for smoothness */
+        }
+
+        /* Bottom row scrolls Right */
+        .row-bottom {
+            animation: scrollRight 60s linear infinite;
+        }
+
+        .scroll-row img {
+            height: 100%;
+            width: auto; 
+            border: 4px solid #fff; 
+            object-fit: cover;
+        }
+
+        @keyframes scrollLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        @keyframes scrollRight {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
+        }
+
+        /* --- FLOATING HEARTS CONTAINER --- */
+        #hearts-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Allows clicks to pass through to the background if needed */
+            z-index: 5; /* Layer 1: Above photos, but BEHIND the card */
+            overflow: hidden;
+        }
+
+        .heart {
+            position: absolute;
+            bottom: -10%;
+            color: #e91e63; /* Pink/Red heart color */
+            font-size: 2rem;
+            opacity: 0.8;
+            animation: floatUp linear forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(0.8);
+                opacity: 0;
+            }
+            10% { opacity: 0.8; }
+            100% {
+                transform: translateY(-120vh) rotate(360deg) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* --- THE CARD --- */
+        .card {
+            position: relative;
+            z-index: 10; /* Layer 2: The very front */
+            background: rgba(238, 203, 224, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 550px;
+            width: 90%;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.2);
+            border: 2px solid #fff; /* Added a subtle white border for pop */
+        }
+
+        .reaction-img {
+            width: 300px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10%; 
+            margin-bottom: 20px;
+        }
+
+        .message-box {
+            background: #f3e5f5; 
+            color: #4a148c;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            font-style: italic;
+            border-left: 5px solid #8e24aa;
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            color: #1a237e; 
+            font-size: 2rem;
+            margin-bottom: 30px;
+            line-height: 1.3;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 5px; 
+            cursor: pointer;
+            font-weight: 700;
+            font-family: 'Cinzel', serif;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-yes {
+            background-color: #6a8caf; 
+            color: white;
+            border: 1px solid #4a6c8f;
+        }
+        
+        .btn-yes:hover { 
+            background-color: #4a6c8f;
+            transform: translateY(-3px); 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-no {
+            background-color: #8d6e63; 
+            color: white;
+            border: 1px solid #6d4c41;
+        }
+
+        /* SUCCESS SCREEN */
+        .success-container {
+            display: none;
+            text-align: center;
+        }
+        
+        .success-img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="background-container">
+        
+        <div class="scroll-row row-top">
+            <img src="20251016_012639.jpg" alt="">
+            <img src="20260126_022300.jpg" alt="">
+            <img src="20251017_054545.jpg" alt="">
+            <img src="20260113_041920.jpg" alt="">
+            <img src="20251208_141321.jpg" alt="">
+            <img src="20260126_022300.jpg" alt="">
+            <img src="20260124_014733.jpg" alt="">
+            <img src="20260124_014446.jpg" alt="">
+            <img src="IMG-20251021-WA0017.jpg" alt="">
+            <img src="IMG-20251121-WA0010.jpg" alt="">
+            <img src="IMG-20251116-WA0028.jpg" alt="">
+            <img src="IMG-20251208-WA0036.jpg" alt="">
+            
+            <img src="20251016_012639.jpg" alt="">
+            <img src="20260126_022300.jpg" alt="">
+            <img src="20251017_054545.jpg" alt="">
+            <img src="20260113_041920.jpg" alt="">
+            <img src="20251208_141321.jpg" alt="">
+            <img src="20260126_022300.jpg" alt="">
+            <img src="20260124_014733.jpg" alt="">
+            <img src="20260124_014446.jpg" alt="">
+            <img src="IMG-20251021-WA0017.jpg" alt="">
+            <img src="IMG-20251121-WA0010.jpg" alt="">
+            <img src="IMG-20251116-WA0028.jpg" alt="">
+            <img src="IMG-20251208-WA0036.jpg" alt="">
+        </div>
+
+        <div class="scroll-row row-bottom">
+            <img src="20260112_020908.jpg" alt="">
+            <img src="IMG-20251121-WA0028.jpg" alt="">
+            <img src="20260126_021139.jpg" alt="">
+            <img src="20251210_014237.jpg" alt="">
+            <img src="IMG-20251208-WA0033.jpg" alt="">
+            <img src="IMG-20251021-WA0018.jpg" alt="">
+            <img src="20260124_014621.jpg" alt="">
+            <img src="IMG-20251121-WA0038.jpg" alt="">
+            <img src="IMG-20251207-WA0002.jpg" alt="">
+            <img src="20260112_020908.jpg" alt="">
+            <img src="IMG-20251208-WA0039.jpg" alt="">
+            <img src="IMG-20251207-WA0014.jpg" alt="">
+
+             <img src="20260112_020908.jpg" alt="">
+             <img src="IMG-20251121-WA0028.jpg" alt="">
+             <img src="20260126_021139.jpg" alt="">
+             <img src="20251210_014237.jpg" alt="">
+             <img src="IMG-20251208-WA0033.jpg" alt="">
+             <img src="IMG-20251021-WA0018.jpg" alt="">
+             <img src="20260124_014621.jpg" alt="">
+             <img src="IMG-20251121-WA0038.jpg" alt="">
+             <img src="IMG-20251207-WA0002.jpg" alt="">
+             <img src="20260112_020908.jpg" alt="">
+             <img src="IMG-20251208-WA0039.jpg" alt="">
+             <img src="IMG-20251207-WA0014.jpg" alt="">
+        </div>
+    </div>
+
+    <div id="hearts-container"></div>
+
+    <div class="card" id="card">
+        
+        <div id="question-section">
+            <img id="main-image" src="Qs.png" class="reaction-img">
+
+            <div class="message-box">
+                Dearest Hopps J. Tomako, <br>
+                You are the diamond of the season. 💎
+            </div>
+
+            <h1 id="main-question">Will you make me the happiest suitor and be my Valentine?</h1>
+
+            <div class="buttons">
+                <button class="btn-yes" onclick="sayYes()">Absolutely!</button>
+                <button class="btn-no" id="btnNo" onclick="clickNo()">I decline</button>
+            </div>
+        </div>
+
+        <div class="success-container" id="success">
+            <img src="yes.jpg" class="success-img">
+            <h1>Splendid! ❤️</h1>
+            <p style="font-size: 1.3rem; margin-top: 10px; font-style: italic;">
+                Your lover is most pleased with this development. <br>
+                I burn for you ✨
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        const btnNo = document.getElementById('btnNo');
+        const mainImage = document.getElementById('main-image');
+        const mainQuestion = document.getElementById('main-question');
+
+        function clickNo() {
+            mainQuestion.innerText = "I beg your pardon? Think again, my dear.";
+            mainImage.src = "Thing_Again.png"; 
+            btnNo.innerText = "Yes, obviously";
+            btnNo.style.backgroundColor = "#6a8caf";
+            btnNo.onclick = sayYes;
+        }
+
+        function sayYes() {
+            confetti({
+                particleCount: 200,
+                spread: 100,
+                origin: { y: 0.6 },
+                colors: ['#d4af37', '#6a8caf', '#ffffff'] 
+            });
+
+            document.getElementById('question-section').style.display = 'none';
+            document.getElementById('success').style.display = 'block';
+        }
+
+        // --- FLOATING HEARTS SCRIPT ---
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '❤️';
+            
+            // Random horizontal position (0 to 100vw)
+            heart.style.left = Math.random() * 100 + "vw";
+            
+            // Random animation duration (between 3s and 7s)
+            heart.style.animationDuration = Math.random() * 4 + 3 + "s";
+            
+            // Random size variation
+            heart.style.fontSize = Math.random() * 2 + 1 + "rem";
+
+            document.getElementById('hearts-container').appendChild(heart);
+
+            // Remove heart from DOM after animation finishes to prevent memory leaks
+            setTimeout(() => {
+                heart.remove();
+            }, 7000); // 7s is the max duration set above
+        }
+
+        // Create a new heart every 400 milliseconds
+        setInterval(createHeart, 400);
+
+    </script>
+</body>
+</html>
